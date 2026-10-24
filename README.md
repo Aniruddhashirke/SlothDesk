@@ -114,7 +114,7 @@ SlothDesk reads configuration from environment variables. The available variable
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server address |
-| `OLLAMA_MODEL` | `qwen2.5:3b` | Model used for AI features |
+| `OLLAMA_MODEL` | `gemma3:4b` | Model used for AI features |
 | `MAX_FILE_MB` | `20` | Maximum document upload size |
 | `SLOTHDESK_DATA_DIR` | `~/.slothdesk` | Location for undo manifests |
 

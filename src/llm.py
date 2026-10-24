@@ -1,7 +1,7 @@
 import requests
 from src.settings import OLLAMA_BASE_URL, DEFAULT_MODEL
 
-TIMEOUT_SECONDS = 120
+TIMEOUT_SECONDS = 600
 
 def check_ollama(model=DEFAULT_MODEL):
     try:
@@ -25,9 +25,15 @@ def generate(prompt, model=DEFAULT_MODEL, system=None, temperature=0.2):
     if system:
         payload["system"] = system
     try:
-        response = requests.post(f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=TIMEOUT_SECONDS)
+        response = requests.post(f"{OLLAMA_BASE_URL}/api/generate", json=payload, timeout=(5, TIMEOUT_SECONDS))
         response.raise_for_status()
         return response.json().get("response", "").strip()
+    except requests.Timeout as exc:
+        raise RuntimeError(
+            f"The local model '{model}' did not finish within {TIMEOUT_SECONDS // 60} minutes. "
+            "This can happen while Gemma is loading or when a document is long. Try again after the model is warm, "
+            "or split the document into smaller files."
+        ) from exc
     except requests.RequestException as exc:
         raise RuntimeError(f"Local Ollama request failed. Check that Ollama is running and model '{model}' is installed. Details: {exc}") from exc
 

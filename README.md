@@ -60,7 +60,7 @@ The application is intentionally small and local-first:
 
 - Python 3.11 or newer
 - [Ollama](https://ollama.com/) installed and running for AI features
-- An Ollama model, such as `qwen2.5:3b`
+- The `gemma3:4b` Ollama model (the default for SlothDesk)
 
 Ollama is not required to scan and organize files using the built-in extension rules, but it is required for document summaries, the AI helper, and optional AI classification.
 
@@ -138,7 +138,7 @@ streamlit run app.py
 
 The [`.env.example`](.env.example) file lists the same settings as a reference. The current application does not load `.env` files automatically, so export variables in your shell or use a launcher that loads them.
 
-The examples above use `gemma3:4b`; run `ollama pull gemma3:4b` before starting the app if you choose that model. Otherwise, use the default `qwen2.5:3b`.
+Gemma 3 4B is the default model. Run `ollama pull gemma3:4b` before starting SlothDesk. You can choose another model by setting `OLLAMA_MODEL` in your shell; the sidebar also lets you override the model for the current app session.
 
 ## Using the app
 

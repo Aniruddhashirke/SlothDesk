@@ -79,7 +79,7 @@ ollama serve
 In another terminal, download and verify the model:
 
 ```bash
-ollama pull qwen2.5:3b
+ollama pull gemma3:4b
 ollama list
 ```
 
@@ -198,7 +198,7 @@ ollama list
 Pull the configured model and make sure the name matches `OLLAMA_MODEL`:
 
 ```bash
-ollama pull qwen2.5:3b
+ollama pull gemma3:4b
 ```
 
 ### PowerShell will not activate `.venv`

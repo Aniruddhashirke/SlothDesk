@@ -23,19 +23,28 @@ SlothDesk is a Streamlit app that organizes files, summarizes text-based documen
 
 **AI helper:** `Pasted text -> Prompt builder -> Local Ollama model -> Checklist, plan, or summary`
 
-The same architecture can be viewed as a flowchart:
+### Architecture dot structure
 
-```mermaid
-flowchart LR
-    UI[Streamlit UI] --> Organizer[File organizer]
-    UI --> Documents[Document extractor]
-    UI --> Helper[AI helper]
-    Organizer --> Preview[Preview and confirmation]
-    Preview --> Files[Local filesystem]
-    Organizer --> Manifest[Undo manifest]
-    Documents --> Ollama[Local Ollama model]
-    Helper --> Ollama
-    Ollama --> Results[Summary, plan, or checklist]
+```text
+.
+|-- app.py (Streamlit UI)
+|   |-- Organize files
+|   |   `-- src/organizer.py -> scan -> classify -> preview -> confirm -> local filesystem
+|   |       `-- undo -> local manifest in SLOTHDESK_DATA_DIR
+|   |-- Summarize document
+|   |   `-- src/documents.py -> extract PDF/TXT/Markdown text -> src/llm.py
+|   |-- AI helper
+|   |   `-- pasted text -> src/llm.py -> local Ollama model -> checklist or plan
+|   `-- Settings
+|       `-- src/settings.py -> environment variables
+|-- src/
+|   |-- organizer.py (file scanning, planning, moving, and undo)
+|   |-- documents.py (document text extraction)
+|   |-- llm.py (Ollama API client and prompts)
+|   `-- settings.py (application configuration)
+|-- tests/ (organizer tests)
+`-- Local services
+    `-- Ollama at http://localhost:11434
 ```
 
 The application is intentionally small and local-first:

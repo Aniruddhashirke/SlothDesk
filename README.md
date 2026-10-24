@@ -23,7 +23,7 @@ SlothDesk is a Streamlit app that organizes files, summarizes text-based documen
 
 **AI helper:** `Pasted text -> Prompt builder -> Local Ollama model -> Checklist, plan, or summary`
 
-### Architecture dot structure
+### Architecture 
 
 ```text
 .

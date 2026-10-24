@@ -23,6 +23,21 @@ SlothDesk is a Streamlit app that organizes files, summarizes text-based documen
 
 **AI helper:** `Pasted text -> Prompt builder -> Local Ollama model -> Checklist, plan, or summary`
 
+The same architecture can be viewed as a flowchart:
+
+```mermaid
+flowchart LR
+    UI[Streamlit UI] --> Organizer[File organizer]
+    UI --> Documents[Document extractor]
+    UI --> Helper[AI helper]
+    Organizer --> Preview[Preview and confirmation]
+    Preview --> Files[Local filesystem]
+    Organizer --> Manifest[Undo manifest]
+    Documents --> Ollama[Local Ollama model]
+    Helper --> Ollama
+    Ollama --> Results[Summary, plan, or checklist]
+```
+
 The application is intentionally small and local-first:
 
 - `app.py` owns the Streamlit interface and user confirmation steps.
@@ -44,6 +59,23 @@ Ollama is not required to scan and organize files using the built-in extension r
 
 Clone or download this repository, then open a terminal in the `SlothDesk` directory.
 
+### Install and start Ollama
+
+Install Ollama from [ollama.com](https://ollama.com/). If Ollama is not already running as a desktop service, start it in a separate terminal:
+
+```bash
+ollama serve
+```
+
+In another terminal, download and verify the model:
+
+```bash
+ollama pull qwen2.5:3b
+ollama list
+```
+
+The model download requires internet access. After the model and Python dependencies are installed, SlothDesk's AI requests can run against the local Ollama server.
+
 ### Windows PowerShell
 
 ```powershell
@@ -51,7 +83,6 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-ollama pull qwen2.5:3b
 streamlit run app.py
 ```
 
@@ -62,7 +93,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-ollama pull qwen2.5:3b
 streamlit run app.py
 ```
 
@@ -99,6 +129,8 @@ streamlit run app.py
 
 The [`.env.example`](.env.example) file lists the same settings as a reference. The current application does not load `.env` files automatically, so export variables in your shell or use a launcher that loads them.
 
+The examples above use `gemma3:4b`; run `ollama pull gemma3:4b` before starting the app if you choose that model. Otherwise, use the default `qwen2.5:3b`.
+
 ## Using the app
 
 ### Organize files
@@ -111,6 +143,20 @@ The [`.env.example`](.env.example) file lists the same settings as a reference. 
 6. Use **Undo latest organization run** if you need to restore the latest run.
 
 The organizer creates category folders such as `Documents`, `Images`, `Code`, and `Spreadsheets`. Existing names are not overwritten; conflicting files receive a numbered suffix.
+
+Supported extension categories include:
+
+| Category | Example extensions |
+| --- | --- |
+| Documents | `.pdf`, `.doc`, `.docx`, `.txt`, `.rtf`, `.odt` |
+| Images | `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`, `.tif`, `.tiff` |
+| Videos | `.mp4`, `.mov`, `.mkv`, `.avi`, `.webm` |
+| Audio | `.mp3`, `.wav`, `.aac`, `.flac`, `.ogg`, `.m4a` |
+| Archives | `.zip`, `.rar`, `.7z`, `.tar`, `.gz` |
+| Code | `.py`, `.js`, `.ts`, `.html`, `.css`, `.java`, `.cpp`, `.json`, `.yml` |
+| Spreadsheets | `.csv`, `.xls`, `.xlsx`, `.ods` |
+| Presentations | `.ppt`, `.pptx`, `.odp` |
+| Other | Unknown extensions or files without a recognized extension |
 
 ### Summarize a document
 
@@ -127,6 +173,54 @@ Paste notes or a small task, then ask SlothDesk to produce a summary, plan, or c
 ```bash
 pytest -q
 ```
+
+## Troubleshooting
+
+### `Cannot reach Ollama at localhost:11434`
+
+Make sure Ollama is installed and running. Start it with `ollama serve`, then confirm that the server responds:
+
+```bash
+ollama list
+```
+
+### `Model is not installed`
+
+Pull the configured model and make sure the name matches `OLLAMA_MODEL`:
+
+```bash
+ollama pull qwen2.5:3b
+```
+
+### PowerShell will not activate `.venv`
+
+Run this in PowerShell for the current session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+### A PDF produces no text
+
+The current MVP supports text-based PDFs only. Scanned or image-only PDFs require OCR, which is not included.
+
+### A file cannot be moved
+
+Close applications that may be using the file, check folder permissions, and retry with a disposable folder. SlothDesk stops safely if a move fails and attempts to roll back moves from the current run.
+
+## Privacy and local data
+
+- File scanning and organization happen on the selected local folder.
+- Document text and pasted prompts are sent only to the configured Ollama server.
+- Optional AI classification sends the filename, not the file contents.
+- Undo manifests are stored locally under `SLOTHDESK_DATA_DIR`, which defaults to `~/.slothdesk`.
+- `.env` files, virtual environments, caches, and local secrets are excluded by [`.gitignore`](.gitignore).
+- Do not expose Streamlit or Ollama to the public internet without authentication and additional security controls.
+
+## Performance notes
+
+AI response time depends on the Ollama model, available RAM, CPU/GPU, and document size. Smaller models such as `qwen2.5:3b` are generally easier to run on CPU-only machines. Documents are limited to `MAX_FILE_MB` for upload and prompts are truncated before being sent to Ollama.
 
 ## Project structure
 
@@ -170,6 +264,14 @@ Issues and pull requests are welcome. Before opening a pull request:
 ## Open innovation
 
 SlothDesk is built with open-source Python tooling and a model that runs on the user's own machine. Local inference can reduce dependence on hosted APIs and per-request costs while keeping the workflow inspectable and adaptable by the community. Hardware and electricity still have costs, and model licenses should always be reviewed before redistribution.
+
+## Roadmap
+
+- Add OCR support for scanned PDFs.
+- Add duplicate detection and richer file rules.
+- Support multiple undo histories instead of only the latest run.
+- Add automated CI checks for tests and formatting.
+- Improve model and hardware guidance for first-time users.
 
 ## License
 
